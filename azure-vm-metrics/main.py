@@ -1,16 +1,18 @@
 import datetime
 from azure.common.credentials import ServicePrincipalCredentials
 from azure.mgmt.monitor import MonitorManagementClient
+from conf_file_yaml import cfg_azure_common as common
+from conf_file_yaml import cfg_azure_vm as vm
 
-SUBSCRIPTION_ID = '80910117-1122-4cca-8f31-6d743a491221'
-CLIENT_ID = 'd9b617ca-acb1-44a5-9d9c-2cfb38b161db'
-SECRET = '2a~MoL-0PTvnJDKrM1M-7.28Cm_9RP.HT3'
-TENANT_ID = 'c6879db7-9cbe-40b9-9204-955880c4f342'
 
-RESOURCE_GROUP_NAME = 'python-lab-automation'
+SUBSCRIPTION_ID = common()["SUBSCRIPTION_ID"]
+CLIENT_ID = common()["CLIENT_ID"]
+SECRET = common()["SECRET"]
+TENANT_ID = common()["TENANT_ID"]
+RESOURCE_GROUP_NAME = common()["RESOURCE_GROUP_NAME"]
 
-VM_NAMES_01 = 'machine-01'
-VM_NAMES_02 = 'machine-02'
+VM_NAMES_01 = vm()["VM_NAMES_01"]
+VM_NAMES_02 = vm()["VM_NAMES_02"]
 
 resource_id = (
     "subscriptions/{}/"
@@ -30,12 +32,6 @@ tomorrow = today + datetime.timedelta(days=1)
 
 
 if __name__ == '__main__':
-    # for metric in metrics_client.metric_definitions.list(resource_id):
-    #     print("{}: id={}, unit={}".format(
-    #         metric.name.localized_value,
-    #         metric.name.value,
-    #         metric.unit
-    #     ))
     metrics_data_cpu = metrics_client.metrics.list(
         resource_id,
         timespan="{}/{}".format(today, tomorrow),
@@ -92,3 +88,5 @@ if __name__ == '__main__':
         for net_out_timeserie in net_out_item.timeseries:
             for net_out_data in net_out_timeserie.data:
                 print("{}: {}".format(net_out_data.time_stamp, net_out_data.total))
+
+    metrics_client.close()
